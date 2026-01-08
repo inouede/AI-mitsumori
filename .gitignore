@@ -1,0 +1,16 @@
+# 設定ファイル（APIキーを含む）
+config.php
+
+# エディタ関連
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS関連
+.DS_Store
+Thumbs.db
+
+# ログファイル
+*.log

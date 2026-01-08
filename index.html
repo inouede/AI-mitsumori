@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI見積もりチャットボット</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI見積もりチャット</h1>
+            <div class="company-info">
+                <a href="tel:0120-XXX-XXXX" class="contact-link phone-link">
+                    <span class="icon">📞</span>
+                    <span>0120-XXX-XXXX</span>
+                </a>
+                <a href="mailto:info@example.com" class="contact-link email-link">
+                    <span class="icon">✉️</span>
+                    <span>info@example.com</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome-message">
+                <div class="message bot-message">
+                    <div class="message-avatar bot-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            こんにちは！リフォームのお見積もりをお手伝いします。<br>
+                            どのようなリフォームをご希望ですか？<br><br>
+                            例：トイレ、お風呂、キッチン、外壁塗装など
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <input
+                type="text"
+                id="userInput"
+                placeholder="メッセージを入力..."
+                autocomplete="off"
+            >
+            <button id="sendButton">送信</button>
+        </div>
+
+        <div class="total-display" id="totalDisplay" style="display: none;">
+            <div class="total-content">
+                <span class="total-label">お見積もり合計金額</span>
+                <span class="total-amount" id="totalAmount">¥0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
