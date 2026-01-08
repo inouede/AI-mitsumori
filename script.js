@@ -170,12 +170,17 @@ function cleanBotMessage(message) {
     cleaned = cleaned.replace(/`{1,3}/g, '');
     cleaned = cleaned.replace(/_{1,2}/g, '');
 
-    // JSON形式のコードブロックを削除
-    cleaned = cleaned.replace(/```json[\s\S]*?```/g, '');
-    cleaned = cleaned.replace(/```[\s\S]*?```/g, '');
+    // JSON形式のコードブロックを削除（改行の有無に関わらず）
+    cleaned = cleaned.replace(/```json[\s\S]*?```/gi, '');
+    cleaned = cleaned.replace(/```[\s\S]*?```/gi, '');
 
-    // JSONオブジェクトそのものを削除（{"estimate":... のような形式）
-    cleaned = cleaned.replace(/\{["']estimate["']:\s*\{[\s\S]*?\}\}/g, '');
+    // JSONオブジェクトを削除（より強力な正規表現）
+    // {"estimate": で始まるものをすべて削除
+    cleaned = cleaned.replace(/\{\s*["']?estimate["']?\s*:\s*\{[\s\S]*?\}\s*\}/gi, '');
+    // json から始まる行を削除
+    cleaned = cleaned.replace(/^json\s*$/gmi, '');
+    // { と } のみの行を削除
+    cleaned = cleaned.replace(/^\s*[\{\}]\s*$/gm, '');
 
     return cleaned.trim();
 }
@@ -232,7 +237,7 @@ function updateEstimate(estimate) {
         // 見積もり明細をメッセージとして表示
         if (estimate.items && estimate.items.length > 0) {
             let detailsHTML = '<div class="estimate-details">';
-            detailsHTML += '<div style="font-weight: bold; margin-bottom: 10px; color: #8B7DD8;">📋 見積もり明細</div>';
+            detailsHTML += '<div style="font-weight: bold; margin-bottom: 10px; color: #7FB5D1;">📋 見積もり明細</div>';
 
             estimate.items.forEach(item => {
                 const itemTotal = item.price * (item.quantity || 1);
