@@ -5,6 +5,16 @@ let currentEstimate = {
     total: 0
 };
 
+// デバッグモード（本番環境では false に設定）
+const DEBUG_MODE = true;
+
+// デバッグログ関数
+function debugLog(message, data = null) {
+    if (DEBUG_MODE) {
+        console.log(`[DEBUG] ${message}`, data || '');
+    }
+}
+
 // DOM要素の取得
 const chatContainer = document.getElementById('chatContainer');
 const userInput = document.getElementById('userInput');
@@ -32,6 +42,8 @@ async function sendMessage() {
 
     if (!message) return;
 
+    debugLog('ユーザーメッセージ:', message);
+
     // ユーザーメッセージを表示
     addMessage(message, 'user');
 
@@ -45,19 +57,30 @@ async function sendMessage() {
     const typingId = showTypingIndicator();
 
     try {
+        const requestBody = {
+            message: message,
+            history: conversationHistory
+        };
+
+        debugLog('APIリクエスト:', requestBody);
+
         // APIにリクエスト送信
         const response = await fetch('api.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                message: message,
-                history: conversationHistory
-            })
+            body: JSON.stringify(requestBody)
         });
 
+        debugLog('APIレスポンスステータス:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
         const data = await response.json();
+        debugLog('APIレスポンスデータ:', data);
 
         // タイピングインジケータを削除
         removeTypingIndicator(typingId);
@@ -82,11 +105,14 @@ async function sendMessage() {
                 updateEstimate(data.estimate);
             }
         } else {
-            addMessage('申し訳ございません。エラーが発生しました。もう一度お試しください。', 'bot');
+            // エラーの詳細を表示
+            const errorMessage = data.error || 'エラーが発生しました。もう一度お試しください。';
+            addMessage('⚠️ ' + errorMessage, 'bot');
+            console.error('API Error:', data);
         }
     } catch (error) {
         removeTypingIndicator(typingId);
-        addMessage('通信エラーが発生しました。接続を確認してください。', 'bot');
+        addMessage('⚠️ 通信エラーが発生しました。接続を確認してください。<br><br>詳細: ' + error.message, 'bot');
         console.error('Error:', error);
     } finally {
         // 送信ボタンを有効化
@@ -192,6 +218,8 @@ function removeTypingIndicator(id) {
 
 // 見積もり情報を更新
 function updateEstimate(estimate) {
+    debugLog('見積もり情報を更新:', estimate);
+
     if (estimate.total && estimate.total > 0) {
         currentEstimate = estimate;
 
@@ -199,10 +227,12 @@ function updateEstimate(estimate) {
         totalAmount.textContent = '¥' + estimate.total.toLocaleString();
         totalDisplay.style.display = 'block';
 
+        debugLog('合計金額を表示:', estimate.total);
+
         // 見積もり明細をメッセージとして表示
         if (estimate.items && estimate.items.length > 0) {
             let detailsHTML = '<div class="estimate-details">';
-            detailsHTML += '<div style="font-weight: bold; margin-bottom: 10px; color: #667eea;">📋 見積もり明細</div>';
+            detailsHTML += '<div style="font-weight: bold; margin-bottom: 10px; color: #8B7DD8;">📋 見積もり明細</div>';
 
             estimate.items.forEach(item => {
                 const itemTotal = item.price * (item.quantity || 1);
