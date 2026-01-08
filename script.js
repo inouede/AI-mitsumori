@@ -237,7 +237,7 @@ function updateEstimate(estimate) {
         // 見積もり明細をメッセージとして表示
         if (estimate.items && estimate.items.length > 0) {
             let detailsHTML = '<div class="estimate-details">';
-            detailsHTML += '<div style="font-weight: bold; margin-bottom: 10px; color: #7FB5D1;">📋 見積もり明細</div>';
+            detailsHTML += '<div style="font-weight: bold; margin-bottom: 10px; color: #3B82F6;">📋 見積もり明細</div>';
 
             estimate.items.forEach(item => {
                 const itemTotal = item.price * (item.quantity || 1);
