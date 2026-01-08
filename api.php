@@ -53,6 +53,11 @@ try {
 function callClaudeAPI($userMessage, $history) {
     global $CLAUDE_API_KEY;
 
+    // APIキーのチェック
+    if (empty($CLAUDE_API_KEY) || strpos($CLAUDE_API_KEY, 'xxxxxx') !== false) {
+        throw new Exception('Claude APIキーが設定されていません。config.phpで正しいAPIキーを設定してください。詳しくはREADME.mdをご確認ください。');
+    }
+
     // システムプロンプト
     $systemPrompt = <<<EOT
 あなたはリフォーム会社の見積もりアシスタントです。顧客と会話しながら、適切な見積もりを作成してください。
@@ -174,13 +179,24 @@ EOT;
     curl_close($ch);
 
     if ($httpCode !== 200) {
-        throw new Exception('Claude API Error: HTTP ' . $httpCode . ' - ' . $response);
+        $errorDetail = $response;
+        $errorData = json_decode($response, true);
+
+        if (isset($errorData['error']['message'])) {
+            $errorDetail = $errorData['error']['message'];
+        }
+
+        if ($httpCode === 401) {
+            throw new Exception('APIキーが無効です。config.phpでClaude APIキーを正しく設定してください。');
+        }
+
+        throw new Exception('Claude API Error (HTTP ' . $httpCode . '): ' . $errorDetail);
     }
 
     $responseData = json_decode($response, true);
 
     if (!isset($responseData['content'][0]['text'])) {
-        throw new Exception('Invalid API response');
+        throw new Exception('APIからの応答が不正です: ' . json_encode($responseData));
     }
 
     $botReply = $responseData['content'][0]['text'];
