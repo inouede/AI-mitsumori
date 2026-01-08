@@ -157,7 +157,7 @@ EOT;
 
     // Claude APIリクエストのボディ
     $requestBody = [
-        'model' => 'claude-3-5-sonnet-20240620',
+        'model' => 'claude-3-haiku-20240307',
         'max_tokens' => 2048,
         'system' => $systemPrompt,
         'messages' => $messages
