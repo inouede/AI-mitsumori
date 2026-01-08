@@ -156,8 +156,10 @@ EOT;
     ];
 
     // Claude APIリクエストのボディ
+    // 推奨: claude-sonnet-4-5-20250929 (最新・最高性能)
+    // 代替: claude-3-5-sonnet-20240620, claude-3-haiku-20240307
     $requestBody = [
-        'model' => 'claude-3-haiku-20240307',
+        'model' => 'claude-sonnet-4-5-20250929',
         'max_tokens' => 2048,
         'system' => $systemPrompt,
         'messages' => $messages
