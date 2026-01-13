@@ -138,6 +138,9 @@ body {
     background: #9CA3AF;
     border: 2px solid #fff;
     border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
 }
 
 .message-content {
@@ -190,6 +193,7 @@ body {
     background: white;
     border-top: 1px solid #e0e0e0;
     gap: 10px;
+    align-items: center;
 }
 
 #userInput {
@@ -234,6 +238,70 @@ body {
 #sendButton:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+/* 音声入力ボタン */
+#voiceButton {
+    padding: 12px;
+    background: #10B981;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#voiceButton:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+#voiceButton:active {
+    transform: translateY(0);
+}
+
+#voiceButton.recording {
+    background: #EF4444;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* タイピングアニメーション */
+.typing-text {
+    display: inline;
+}
+
+.typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: #3B82F6;
+    margin-left: 2px;
+    animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+    0%, 49% {
+        opacity: 1;
+    }
+    50%, 100% {
+        opacity: 0;
+    }
 }
 
 /* 合計金額表示 */

@@ -19,8 +19,13 @@ function debugLog(message, data = null) {
 const chatContainer = document.getElementById('chatContainer');
 const userInput = document.getElementById('userInput');
 const sendButton = document.getElementById('sendButton');
+const voiceButton = document.getElementById('voiceButton');
 const totalDisplay = document.getElementById('totalDisplay');
 const totalAmount = document.getElementById('totalAmount');
+
+// 音声認識の初期化
+let recognition = null;
+let isRecording = false;
 
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
@@ -34,6 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 送信ボタンのクリック
     sendButton.addEventListener('click', sendMessage);
+
+    // 音声入力ボタンのクリック
+    voiceButton.addEventListener('click', toggleVoiceRecognition);
+
+    // 音声認識の初期化
+    initVoiceRecognition();
 });
 
 // メッセージ送信
@@ -86,9 +97,9 @@ async function sendMessage() {
         removeTypingIndicator(typingId);
 
         if (data.success) {
-            // ボットの返信を表示
+            // ボットの返信をタイピングアニメーションで表示
             const cleanedMessage = cleanBotMessage(data.reply);
-            addMessage(cleanedMessage, 'bot');
+            await addMessageWithTyping(cleanedMessage, 'bot');
 
             // 会話履歴に追加
             conversationHistory.push({
@@ -318,6 +329,87 @@ function scrollToBottom() {
     }, 100);
 }
 
+// タイピングアニメーションでメッセージを表示
+async function addMessageWithTyping(text, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+
+    const avatar = document.createElement('div');
+    avatar.className = `message-avatar ${sender}-avatar`;
+
+    if (sender === 'bot') {
+        const img = document.createElement('img');
+        // タイピング中はGIFアニメーションを表示
+        img.src = 'images/receptionist.gif';
+        img.alt = 'AI受付';
+        img.onerror = function() {
+            this.src = 'images/receptionist.png';
+            this.onerror = function() {
+                this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
+            };
+        };
+        avatar.appendChild(img);
+    } else {
+        avatar.textContent = '👤';
+    }
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+
+    contentDiv.appendChild(bubble);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(contentDiv);
+
+    chatContainer.appendChild(messageDiv);
+    scrollToBottom();
+
+    // タイピングアニメーション実行
+    const formattedText = formatMessage(text);
+    await typeText(bubble, formattedText);
+
+    // タイピング完了後、アイコンを静止画に変更
+    if (sender === 'bot') {
+        const img = avatar.querySelector('img');
+        if (img && img.src.includes('.gif')) {
+            img.src = 'images/receptionist.png';
+        }
+    }
+}
+
+// テキストをタイピングアニメーションで表示
+async function typeText(element, html) {
+    // HTMLタグを含むテキストを処理
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+
+    // カーソル要素を作成
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    element.appendChild(cursor);
+
+    let displayedText = '';
+    const speed = 30; // ミリ秒（1文字あたりの表示速度）
+
+    for (let i = 0; i < textContent.length; i++) {
+        displayedText += textContent[i];
+        element.innerHTML = displayedText + cursor.outerHTML;
+        scrollToBottom();
+        await sleep(speed);
+    }
+
+    // カーソルを削除してHTMLをフォーマット
+    element.innerHTML = html;
+}
+
+// スリープ関数
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // 電話・メールキーワードをチェックしてボタンを表示
 function checkForContactButtons(message) {
     // 電話関連のキーワード
@@ -328,6 +420,70 @@ function checkForContactButtons(message) {
     // メール関連のキーワード
     if (message.includes('メール') || message.includes('mail') || message.includes('めーる')) {
         addContactButton('email');
+    }
+}
+
+// 音声認識の初期化
+function initVoiceRecognition() {
+    // ブラウザが音声認識をサポートしているかチェック
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        debugLog('音声認識はこのブラウザではサポートされていません');
+        voiceButton.style.display = 'none';
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = 'ja-JP'; // 日本語
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+        debugLog('音声認識開始');
+        isRecording = true;
+        voiceButton.classList.add('recording');
+        voiceButton.textContent = '⏹️';
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        debugLog('音声認識結果:', transcript);
+        userInput.value = transcript;
+    };
+
+    recognition.onerror = (event) => {
+        debugLog('音声認識エラー:', event.error);
+        if (event.error === 'no-speech') {
+            addMessage('⚠️ 音声が検出されませんでした。もう一度お試しください。', 'bot');
+        } else if (event.error === 'not-allowed') {
+            addMessage('⚠️ マイクへのアクセスが許可されていません。ブラウザの設定を確認してください。', 'bot');
+        }
+    };
+
+    recognition.onend = () => {
+        debugLog('音声認識終了');
+        isRecording = false;
+        voiceButton.classList.remove('recording');
+        voiceButton.textContent = '🎤';
+    };
+}
+
+// 音声認識の開始/停止
+function toggleVoiceRecognition() {
+    if (!recognition) {
+        addMessage('⚠️ 音声認識はこのブラウザではサポートされていません。', 'bot');
+        return;
+    }
+
+    if (isRecording) {
+        recognition.stop();
+    } else {
+        try {
+            recognition.start();
+        } catch (error) {
+            debugLog('音声認識開始エラー:', error);
+        }
     }
 }
 
