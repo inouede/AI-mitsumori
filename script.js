@@ -52,6 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 音声合成（読み上げ）の初期化
     initSpeechSynthesis();
+
+    // 初期選択バナーを表示
+    showInitialChoices();
 });
 
 // メッセージ送信
@@ -124,6 +127,13 @@ async function sendMessage() {
             // 見積もり情報を更新
             if (data.estimate) {
                 updateEstimate(data.estimate);
+            }
+
+            // カテゴリ選択の場合、グレード選択を表示
+            if (message.match(/トイレ|風呂|お風呂|キッチン/)) {
+                setTimeout(() => {
+                    showGradeChoices(message);
+                }, 1000);
             }
         } else {
             // エラーの詳細を表示
@@ -541,6 +551,121 @@ function initSpeechSynthesis() {
 
     // 初期読み込み
     loadVoices();
+}
+
+// 初期選択バナーを表示
+function showInitialChoices() {
+    const choices = [
+        { text: 'トイレ', icon: '🚽', value: 'トイレ' },
+        { text: 'お風呂', icon: '🛁', value: 'お風呂' },
+        { text: 'キッチン', icon: '🔪', value: 'キッチン' },
+        { text: '外壁塗装', icon: '🏠', value: '外壁塗装' },
+        { text: 'その他', icon: '💬', value: 'その他のリフォーム' }
+    ];
+
+    addChoiceButtons(choices);
+}
+
+// 選択肢ボタンを追加
+function addChoiceButtons(choices, message = null) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot-message';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar bot-avatar';
+    const img = document.createElement('img');
+    img.src = 'images/receptionist.png';
+    img.alt = 'AI受付';
+    img.onerror = function() {
+        this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
+    };
+    avatar.appendChild(img);
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+
+    // メッセージがある場合は表示
+    if (message) {
+        const messageText = document.createElement('div');
+        messageText.innerHTML = formatMessage(message);
+        bubble.appendChild(messageText);
+    }
+
+    // ボタンを作成
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'choice-buttons';
+
+    choices.forEach(choice => {
+        const button = document.createElement('button');
+        button.className = 'choice-button';
+        button.innerHTML = `<span class="icon">${choice.icon}</span>${choice.text}`;
+        button.onclick = () => handleChoiceClick(choice.value, buttonsContainer);
+        buttonsContainer.appendChild(button);
+    });
+
+    bubble.appendChild(buttonsContainer);
+    contentDiv.appendChild(bubble);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(contentDiv);
+
+    chatContainer.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+// 選択肢がクリックされたときの処理
+function handleChoiceClick(value, buttonsContainer) {
+    // ボタンを無効化
+    const buttons = buttonsContainer.querySelectorAll('.choice-button');
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+    });
+
+    // 選択されたボタンをハイライト
+    event.target.closest('.choice-button').classList.add('selected');
+    event.target.closest('.choice-button').style.opacity = '1';
+
+    // ユーザーメッセージとして表示
+    addMessage(value, 'user');
+
+    // 入力欄に値を設定して送信
+    userInput.value = value;
+    sendMessage();
+}
+
+// グレード選択バナーを表示
+function showGradeChoices(category) {
+    let choices = [];
+    let message = '';
+
+    if (category.includes('トイレ')) {
+        message = 'トイレのグレードをお選びください：';
+        choices = [
+            { text: 'スタンダード\n約15万円', icon: '⭐', value: 'スタンダードのトイレ' },
+            { text: '高機能\n約25万円', icon: '⭐⭐', value: '高機能のトイレ' },
+            { text: '最高級\n約40万円', icon: '⭐⭐⭐', value: '最高級のトイレ' }
+        ];
+    } else if (category.includes('風呂')) {
+        message = 'お風呂のグレードをお選びください：';
+        choices = [
+            { text: 'ユニットバス\n約80万円', icon: '⭐', value: 'ユニットバスのお風呂' },
+            { text: '高級\n約150万円', icon: '⭐⭐⭐', value: '高級なお風呂' }
+        ];
+    } else if (category.includes('キッチン')) {
+        message = 'キッチンのグレードをお選びください：';
+        choices = [
+            { text: 'スタンダード\n約70万円', icon: '⭐', value: 'スタンダードのキッチン' },
+            { text: '高級\n約150万円', icon: '⭐⭐⭐', value: '高級なキッチン' }
+        ];
+    }
+
+    if (choices.length > 0) {
+        addChoiceButtons(choices, message);
+    }
 }
 
 // 連絡先ボタンを追加
