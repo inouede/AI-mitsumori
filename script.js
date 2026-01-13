@@ -210,10 +210,16 @@ function showTypingIndicator() {
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar bot-avatar';
     const img = document.createElement('img');
-    img.src = 'images/receptionist.png';
+    // タイピング中はGIFアニメーションを表示
+    img.src = 'images/receptionist.gif';
     img.alt = 'AI受付';
     img.onerror = function() {
-        this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
+        // GIFが見つからない場合は静止画にフォールバック
+        this.src = 'images/receptionist.png';
+        this.onerror = function() {
+            // 静止画も見つからない場合はデフォルトアイコン
+            this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
+        };
     };
     avatar.appendChild(img);
 
