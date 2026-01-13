@@ -19,9 +19,16 @@ if (file_exists('config.php')) {
     exit;
 }
 
+// OPTIONSリクエスト（CORSプリフライト）に対応
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 // POSTリクエストのみ受け付け
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'error' => 'Invalid request method']);
+    http_response_code(405);
+    echo json_encode(['success' => false, 'error' => 'Invalid request method. Only POST is allowed.']);
     exit;
 }
 

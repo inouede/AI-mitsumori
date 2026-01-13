@@ -133,7 +133,15 @@ function addMessage(text, sender) {
     avatar.className = `message-avatar ${sender}-avatar`;
 
     if (sender === 'bot') {
-        avatar.innerHTML = '<img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E" alt="AI" style="width: 100%; height: 100%; border-radius: 50%;">';
+        const img = document.createElement('img');
+        img.src = 'images/receptionist.png';
+        img.alt = 'AI受付';
+        img.style.cssText = 'width: 100%; height: 100%; border-radius: 50%; object-fit: cover;';
+        img.onerror = function() {
+            // 画像が見つからない場合はフォールバック
+            this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
+        };
+        avatar.appendChild(img);
     } else {
         avatar.textContent = '👤';
     }
@@ -202,7 +210,14 @@ function showTypingIndicator() {
 
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar bot-avatar';
-    avatar.innerHTML = '<img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E" alt="AI" style="width: 100%; height: 100%; border-radius: 50%;">';
+    const img = document.createElement('img');
+    img.src = 'images/receptionist.png';
+    img.alt = 'AI受付';
+    img.style.cssText = 'width: 100%; height: 100%; border-radius: 50%; object-fit: cover;';
+    img.onerror = function() {
+        this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
+    };
+    avatar.appendChild(img);
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
@@ -313,7 +328,14 @@ function addContactButton(type) {
 
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar bot-avatar';
-    avatar.innerHTML = '<img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E" alt="AI" style="width: 100%; height: 100%; border-radius: 50%;">';
+    const img = document.createElement('img');
+    img.src = 'images/receptionist.png';
+    img.alt = 'AI受付';
+    img.style.cssText = 'width: 100%; height: 100%; border-radius: 50%; object-fit: cover;';
+    img.onerror = function() {
+        this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
+    };
+    avatar.appendChild(img);
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';

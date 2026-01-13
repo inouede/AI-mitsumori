@@ -159,20 +159,21 @@ body {
 
 /* ユーザーメッセージ（右側） */
 .user-message {
-    justify-content: flex-end;
-    flex-direction: row-reverse;
+    justify-content: flex-end !important;
+    flex-direction: row-reverse !important;
 }
 
 .user-message .message-content {
-    display: flex;
-    justify-content: flex-end;
+    display: flex !important;
+    justify-content: flex-end !important;
+    margin-left: auto !important;
 }
 
 .user-message .message-bubble {
-    background: #3B82F6;
-    color: white;
-    border-bottom-right-radius: 4px;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    background: #3B82F6 !important;
+    color: white !important;
+    border-bottom-right-radius: 4px !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2) !important;
 }
 
 /* 入力エリア */
