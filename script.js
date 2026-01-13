@@ -27,6 +27,10 @@ const totalAmount = document.getElementById('totalAmount');
 let recognition = null;
 let isRecording = false;
 
+// 音声合成（読み上げ）の初期化
+let speechSynthesis = window.speechSynthesis;
+let selectedVoice = null;
+
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
     // Enterキーで送信
@@ -45,6 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 音声認識の初期化
     initVoiceRecognition();
+
+    // 音声合成（読み上げ）の初期化
+    initSpeechSynthesis();
 });
 
 // メッセージ送信
@@ -221,16 +228,12 @@ function showTypingIndicator() {
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar bot-avatar';
     const img = document.createElement('img');
-    // タイピング中はGIFアニメーションを表示
-    img.src = 'images/receptionist.gif';
+    // ローディング中は静止画を表示
+    img.src = 'images/receptionist.png';
     img.alt = 'AI受付';
     img.onerror = function() {
-        // GIFが見つからない場合は静止画にフォールバック
-        this.src = 'images/receptionist.png';
-        this.onerror = function() {
-            // 静止画も見つからない場合はデフォルトアイコン
-            this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
-        };
+        // 静止画も見つからない場合はデフォルトアイコン
+        this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
     };
     avatar.appendChild(img);
 
@@ -379,12 +382,24 @@ async function addMessageWithTyping(text, sender) {
     }
 }
 
-// テキストをタイピングアニメーションで表示
+// テキストをタイピングアニメーションで表示（音声読み上げ付き）
 async function typeText(element, html) {
     // HTMLタグを含むテキストを処理
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     const textContent = tempDiv.textContent || tempDiv.innerText || '';
+
+    // 音声読み上げを開始
+    if (speechSynthesis && selectedVoice) {
+        const utterance = new SpeechSynthesisUtterance(textContent);
+        utterance.voice = selectedVoice;
+        utterance.lang = 'ja-JP';
+        utterance.rate = 1.0; // 話速（1.0が標準）
+        utterance.pitch = 1.2; // 音程（1.0が標準、高めに設定）
+        utterance.volume = 0.8; // 音量（0.0〜1.0）
+
+        speechSynthesis.speak(utterance);
+    }
 
     // カーソル要素を作成
     const cursor = document.createElement('span');
@@ -485,6 +500,47 @@ function toggleVoiceRecognition() {
             debugLog('音声認識開始エラー:', error);
         }
     }
+}
+
+// 音声合成（読み上げ）の初期化
+function initSpeechSynthesis() {
+    if (!speechSynthesis) {
+        debugLog('音声合成はこのブラウザではサポートされていません');
+        return;
+    }
+
+    // 音声リストの読み込みを待つ
+    const loadVoices = () => {
+        const voices = speechSynthesis.getVoices();
+        debugLog('利用可能な音声:', voices.length);
+
+        // 日本語の女性の声を優先的に選択
+        selectedVoice = voices.find(voice =>
+            voice.lang.startsWith('ja') && voice.name.includes('female')
+        ) || voices.find(voice =>
+            voice.lang.startsWith('ja') && (voice.name.includes('Female') || voice.name.includes('Woman'))
+        ) || voices.find(voice =>
+            voice.lang.startsWith('ja') && voice.name.includes('Kyoko')
+        ) || voices.find(voice =>
+            voice.lang.startsWith('ja') && voice.name.includes('Google 日本語')
+        ) || voices.find(voice =>
+            voice.lang.startsWith('ja')
+        ) || voices[0]; // フォールバック
+
+        if (selectedVoice) {
+            debugLog('選択された音声:', selectedVoice.name, selectedVoice.lang);
+        } else {
+            debugLog('音声が見つかりませんでした');
+        }
+    };
+
+    // 音声リストの読み込みイベント
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    // 初期読み込み
+    loadVoices();
 }
 
 // 連絡先ボタンを追加
