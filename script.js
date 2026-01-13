@@ -566,32 +566,17 @@ function showInitialChoices() {
     addChoiceButtons(choices);
 }
 
-// 選択肢ボタンを追加
+// 選択肢ボタンを追加（受付嬢アイコンなし）
 function addChoiceButtons(choices, message = null) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = 'message bot-message';
-
-    const avatar = document.createElement('div');
-    avatar.className = 'message-avatar bot-avatar';
-    const img = document.createElement('img');
-    img.src = 'images/receptionist.png';
-    img.alt = 'AI受付';
-    img.onerror = function() {
-        this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
-    };
-    avatar.appendChild(img);
-
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-
-    const bubble = document.createElement('div');
-    bubble.className = 'message-bubble';
+    messageDiv.className = 'choice-banner-container';
 
     // メッセージがある場合は表示
     if (message) {
         const messageText = document.createElement('div');
+        messageText.className = 'choice-message';
         messageText.innerHTML = formatMessage(message);
-        bubble.appendChild(messageText);
+        messageDiv.appendChild(messageText);
     }
 
     // ボタンを作成
@@ -601,16 +586,12 @@ function addChoiceButtons(choices, message = null) {
     choices.forEach(choice => {
         const button = document.createElement('button');
         button.className = 'choice-button';
-        button.innerHTML = `<span class="icon">${choice.icon}</span>${choice.text}`;
+        button.innerHTML = `<span class="icon">${choice.icon}</span><span>${choice.text}</span>`;
         button.onclick = () => handleChoiceClick(choice.value, buttonsContainer);
         buttonsContainer.appendChild(button);
     });
 
-    bubble.appendChild(buttonsContainer);
-    contentDiv.appendChild(bubble);
-    messageDiv.appendChild(avatar);
-    messageDiv.appendChild(contentDiv);
-
+    messageDiv.appendChild(buttonsContainer);
     chatContainer.appendChild(messageDiv);
     scrollToBottom();
 }
@@ -629,10 +610,7 @@ function handleChoiceClick(value, buttonsContainer) {
     event.target.closest('.choice-button').classList.add('selected');
     event.target.closest('.choice-button').style.opacity = '1';
 
-    // ユーザーメッセージとして表示
-    addMessage(value, 'user');
-
-    // 入力欄に値を設定して送信
+    // 入力欄に値を設定して送信（addMessageは不要、sendMessage内で表示される）
     userInput.value = value;
     sendMessage();
 }

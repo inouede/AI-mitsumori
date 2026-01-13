@@ -489,33 +489,51 @@ body {
     }
 }
 
+/* バナー選択コンテナ */
+.choice-banner-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.choice-message {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2C3E50;
+    margin-bottom: 20px;
+}
+
 /* バナー選択ボタン */
 .choice-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
 }
 
 .choice-button {
-    flex: 1;
-    min-width: 140px;
-    padding: 15px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px 15px;
+    background: #3B82F6;
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 8px;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 }
 
 .choice-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    background: #2563EB;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .choice-button:active {
@@ -523,14 +541,17 @@ body {
 }
 
 .choice-button.selected {
-    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+    background: #10B981;
+    box-shadow: 0 3px 10px rgba(16, 185, 129, 0.4);
+}
+
+.choice-button:disabled {
+    cursor: not-allowed;
 }
 
 /* バナーアイコン */
 .choice-button .icon {
-    font-size: 24px;
-    margin-bottom: 5px;
+    font-size: 28px;
     display: block;
 }
 
@@ -612,13 +633,21 @@ body {
         padding: 10px 14px;
     }
 
+    .choice-banner-container {
+        padding: 0 10px;
+    }
+
+    .choice-message {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
     .choice-button {
-        min-width: 120px;
-        padding: 12px 16px;
+        padding: 16px 12px;
         font-size: 14px;
     }
 
     .choice-button .icon {
-        font-size: 20px;
+        font-size: 24px;
     }
 }
