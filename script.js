@@ -100,6 +100,9 @@ async function sendMessage() {
                 content: data.reply
             });
 
+            // 電話・メールキーワードをチェックしてボタンを表示
+            checkForContactButtons(message.toLowerCase());
+
             // 見積もり情報を更新
             if (data.estimate) {
                 updateEstimate(data.estimate);
@@ -128,7 +131,12 @@ function addMessage(text, sender) {
 
     const avatar = document.createElement('div');
     avatar.className = `message-avatar ${sender}-avatar`;
-    avatar.textContent = sender === 'bot' ? '🤖' : '👤';
+
+    if (sender === 'bot') {
+        avatar.innerHTML = '<img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E" alt="AI" style="width: 100%; height: 100%; border-radius: 50%;">';
+    } else {
+        avatar.textContent = '👤';
+    }
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
@@ -194,7 +202,7 @@ function showTypingIndicator() {
 
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar bot-avatar';
-    avatar.textContent = '🤖';
+    avatar.innerHTML = '<img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E" alt="AI" style="width: 100%; height: 100%; border-radius: 50%;">';
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
@@ -283,4 +291,58 @@ function scrollToBottom() {
     setTimeout(() => {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }, 100);
+}
+
+// 電話・メールキーワードをチェックしてボタンを表示
+function checkForContactButtons(message) {
+    // 電話関連のキーワード
+    if (message.includes('電話') || message.includes('でんわ') || message.includes('tel')) {
+        addContactButton('phone');
+    }
+
+    // メール関連のキーワード
+    if (message.includes('メール') || message.includes('mail') || message.includes('めーる')) {
+        addContactButton('email');
+    }
+}
+
+// 連絡先ボタンを追加
+function addContactButton(type) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot-message';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar bot-avatar';
+    avatar.innerHTML = '<img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E" alt="AI" style="width: 100%; height: 100%; border-radius: 50%;">';
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+
+    if (type === 'phone') {
+        bubble.innerHTML = `
+            <div style="margin-bottom: 10px;">こちらからお電話いただけます：</div>
+            <a href="tel:0120-XXX-XXXX" class="contact-action-button phone-action">
+                <span class="button-icon">📞</span>
+                <span>0120-XXX-XXXX に電話する</span>
+            </a>
+        `;
+    } else if (type === 'email') {
+        bubble.innerHTML = `
+            <div style="margin-bottom: 10px;">こちらからメールをお送りいただけます：</div>
+            <a href="mailto:info@example.com" class="contact-action-button email-action">
+                <span class="button-icon">✉️</span>
+                <span>info@example.com にメールする</span>
+            </a>
+        `;
+    }
+
+    contentDiv.appendChild(bubble);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(contentDiv);
+
+    chatContainer.appendChild(messageDiv);
+    scrollToBottom();
 }
