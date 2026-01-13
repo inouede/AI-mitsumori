@@ -2,6 +2,24 @@
 
 LINEのような会話形式でリフォームの見積もりを自動生成するシステムです。
 
+## ⚠️ 重要な注意事項
+
+**このシステムはGitHub Pagesでは動作しません！**
+
+理由：
+- GitHub Pagesは**静的ファイル専用**のホスティングサービスです
+- **PHPが実行できない**ため、`api.php`が動作しません
+- HTTP 405エラーが発生します
+
+**動作環境：**
+- ✅ PHPが動作するレンタルサーバー（X-Server、さくらサーバーなど）
+- ✅ 無料PHPホスティング（InfinityFree、000webhostなど）
+- ✅ ローカル環境（XAMPP、MAMP、PHP内蔵サーバー）
+- ❌ GitHub Pages（静的ファイルのみ）
+- ❌ Netlify、Vercel（サーバーレス関数への移行が必要）
+
+詳細は [`LOCAL_SETUP.md`](./LOCAL_SETUP.md) をご覧ください。
+
 ## 特徴
 
 - LINEライクな吹き出しチャットUI
