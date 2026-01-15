@@ -129,11 +129,19 @@ async function sendMessage() {
                 updateEstimate(data.estimate);
             }
 
-            // カテゴリ選択の場合、グレード選択を表示
-            if (message.match(/トイレ|風呂|お風呂|キッチン/)) {
+            // カテゴリ選択の場合のみ、グレード選択を表示（グレード選択後は表示しない）
+            const isInitialCategory = message.match(/^(トイレ|お風呂|キッチン|外壁塗装)$/);
+            const isGradeSelection = message.match(/スタンダード|高機能|最高級|ユニットバス|高級/);
+
+            if (isInitialCategory && !isGradeSelection) {
                 setTimeout(() => {
                     showGradeChoices(message);
                 }, 1000);
+            } else if (isGradeSelection) {
+                // グレード選択後は、追加の希望を聞くために初期選択肢を表示
+                setTimeout(() => {
+                    showAdditionalChoices();
+                }, 2000);
             }
         } else {
             // エラーの詳細を表示
@@ -162,7 +170,7 @@ function addMessage(text, sender) {
 
     if (sender === 'bot') {
         const img = document.createElement('img');
-        img.src = 'images/receptionist.png';
+        img.src = 'images/img.png';
         img.alt = 'AI受付';
         img.onerror = function() {
             // 画像が見つからない場合はフォールバック
@@ -239,7 +247,7 @@ function showTypingIndicator() {
     avatar.className = 'message-avatar bot-avatar';
     const img = document.createElement('img');
     // ローディング中は静止画を表示
-    img.src = 'images/receptionist.png';
+    img.src = 'images/img.png';
     img.alt = 'AI受付';
     img.onerror = function() {
         // 静止画も見つからない場合はデフォルトアイコン
@@ -283,6 +291,9 @@ function updateEstimate(estimate) {
         totalAmount.textContent = '¥' + estimate.total.toLocaleString();
         totalDisplay.style.display = 'block';
 
+        // チャット内容が隠れないように余白を調整
+        chatContainer.style.paddingBottom = '200px';
+
         debugLog('合計金額を表示:', estimate.total);
 
         // 見積もり明細をメッセージとして表示
@@ -311,7 +322,7 @@ function updateEstimate(estimate) {
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar bot-avatar';
             const img = document.createElement('img');
-            img.src = 'images/receptionist.png';
+            img.src = 'images/img.png';
             img.alt = 'AI受付';
             img.onerror = function() {
                 this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
@@ -353,10 +364,10 @@ async function addMessageWithTyping(text, sender) {
     if (sender === 'bot') {
         const img = document.createElement('img');
         // タイピング中はGIFアニメーションを表示
-        img.src = 'images/receptionist.gif';
+        img.src = 'images/mov.png';
         img.alt = 'AI受付';
         img.onerror = function() {
-            this.src = 'images/receptionist.png';
+            this.src = 'images/img.png';
             this.onerror = function() {
                 this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
             };
@@ -386,8 +397,8 @@ async function addMessageWithTyping(text, sender) {
     // タイピング完了後、アイコンを静止画に変更
     if (sender === 'bot') {
         const img = avatar.querySelector('img');
-        if (img && img.src.includes('.gif')) {
-            img.src = 'images/receptionist.png';
+        if (img && img.src.includes('mov.png')) {
+            img.src = 'images/img.png';
         }
     }
 }
@@ -646,6 +657,19 @@ function showGradeChoices(category) {
     }
 }
 
+// 追加のリフォーム希望を聞く
+function showAdditionalChoices() {
+    const message = '他にもリフォームのご希望はございますか？';
+    const choices = [
+        { text: 'トイレ', icon: '🚽', value: 'トイレ' },
+        { text: 'お風呂', icon: '🛁', value: 'お風呂' },
+        { text: 'キッチン', icon: '🔪', value: 'キッチン' },
+        { text: '外壁塗装', icon: '🏠', value: '外壁塗装' },
+        { text: 'いいえ', icon: '✅', value: '以上で大丈夫です' }
+    ];
+    addChoiceButtons(choices, message);
+}
+
 // 連絡先ボタンを追加
 function addContactButton(type) {
     const messageDiv = document.createElement('div');
@@ -654,7 +678,7 @@ function addContactButton(type) {
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar bot-avatar';
     const img = document.createElement('img');
-    img.src = 'images/receptionist.png';
+    img.src = 'images/img.png';
     img.alt = 'AI受付';
     img.onerror = function() {
         this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%233B82F6\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩‍💼%3C/text%3E%3C/svg%3E';
